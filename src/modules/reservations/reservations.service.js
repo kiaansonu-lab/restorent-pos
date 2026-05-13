@@ -56,7 +56,8 @@ class ReservationsService {
       const payload = {
         reservation_code: data.id || data.reservation_code || `RES-${Date.now().toString().slice(-6)}`,
         guest_id: guest_id,
-        table_id: data.table_id || data.targetId || null, // targetId might be table ID from frontend
+        table_id: data.table_id || data.targetId || null,
+        room_id: data.room_id || null,
         booking_type: (data.type || data.booking_type || 'table').toLowerCase(),
         booking_date: data.date || data.booking_date || new Date().toISOString().split('T')[0],
         booking_time: data.time || data.booking_time || new Date().toTimeString().split(' ')[0],

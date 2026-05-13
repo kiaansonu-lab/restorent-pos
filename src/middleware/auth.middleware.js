@@ -44,18 +44,16 @@ const authorize = (...roles) => {
       return res.status(401).json({ success: false, message: 'Authentication required' });
     }
 
-    const userRole = (req.user.role_name || '').trim().toLowerCase();
-    const authorizedRoles = roles.flat().map(r => String(r).trim().toLowerCase());
+    const userRole = (req.user.role_name || '').toLowerCase().trim();
+    const authorizedRoles = roles.flat().map(r => String(r).toLowerCase().trim());
     
-    // Check by name or common role IDs (1=admin, 2=manager)
-    const isAdmin = authorizedRoles.includes('admin') && (userRole === 'admin' || req.user.role_id === 1);
-    const isManager = authorizedRoles.includes('manager') && (userRole === 'manager' || req.user.role_id === 2);
-
-    if (authorizedRoles.includes(userRole) || isAdmin || isManager) {
+    // Always allow admin role for any staff-level resource
+    const isSystemAdmin = userRole === 'admin' || req.user.role_id === 1;
+    
+    if (authorizedRoles.includes(userRole) || isSystemAdmin) {
       return next();
     }
 
-    console.warn(`[Auth Check] Denied: User ID ${req.user.id}, role "${userRole}", role_id ${req.user.role_id}. Required: ${JSON.stringify(authorizedRoles)}`);
     return res.status(403).json({
       success: false,
       message: 'Forbidden: You do not have access to this resource'

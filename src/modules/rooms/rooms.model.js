@@ -11,15 +11,33 @@ class RoomsModel extends BaseModel {
       SELECT 
         r.*,
         r.room_status as status,
-        g.full_name as assignedGuest,
-        g.full_name as assigned_guest,
-        rb.total_guests as guests_count
+        (
+          SELECT g.full_name 
+          FROM room_bookings rb
+          JOIN reservations res ON rb.reservation_id = res.id
+          JOIN guests g ON res.guest_id = g.id
+          WHERE rb.room_id = r.id AND r.room_status = 'occupied'
+          ORDER BY rb.createdAt DESC
+          LIMIT 1
+        ) as assignedGuest,
+        (
+          SELECT g.full_name 
+          FROM room_bookings rb
+          JOIN reservations res ON rb.reservation_id = res.id
+          JOIN guests g ON res.guest_id = g.id
+          WHERE rb.room_id = r.id AND r.room_status = 'occupied'
+          ORDER BY rb.createdAt DESC
+          LIMIT 1
+        ) as assigned_guest,
+        (
+          SELECT rb.total_guests 
+          FROM room_bookings rb
+          WHERE rb.room_id = r.id AND r.room_status = 'occupied'
+          ORDER BY rb.createdAt DESC
+          LIMIT 1
+        ) as guests_count
       FROM rooms r
-      LEFT JOIN room_bookings rb ON r.id = rb.room_id AND r.room_status = 'occupied'
-      LEFT JOIN reservations res ON rb.reservation_id = res.id
-      LEFT JOIN guests g ON res.guest_id = g.id
       WHERE r.deletedAt IS NULL
-      GROUP BY r.id
     `;
     const [rows] = await pool.execute(sql);
     return rows;

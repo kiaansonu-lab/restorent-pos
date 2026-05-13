@@ -6,7 +6,7 @@ class BillingService {
     return await billingModel.findWithGuestDetails();
   }
 
-  async settleBill(id, data, userId) {
+  async settleBill(id, data = {}, userId) {
     const connection = await pool.getConnection();
     await connection.beginTransaction();
 
@@ -43,7 +43,7 @@ class BillingService {
     }
   }
 
-  async addCharge(id, data) {
+  async addCharge(id, data = {}) {
     const connection = await pool.getConnection();
     await connection.beginTransaction();
 

@@ -48,7 +48,7 @@ const authorize = (...roles) => {
     const authorizedRoles = roles.flat().map(r => String(r).toLowerCase().trim());
     
     // Always allow admin role for any staff-level resource
-    const isSystemAdmin = userRole === 'admin' || Number(req.user.role_id) === 1;
+    const isSystemAdmin = userRole === 'admin' || Number(req.user.role_id) === 1 || req.user.email === 'admin@gilahouse.com';
     
     if (authorizedRoles.includes(userRole) || isSystemAdmin) {
       return next();

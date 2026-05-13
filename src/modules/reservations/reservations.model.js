@@ -15,12 +15,17 @@ class ReservationsModel extends BaseModel {
         r.reservation_status as status, 
         r.booking_type as type, 
         r.guests_count as guests,
+        r.special_notes as notes,
         g.full_name,
         g.full_name as guestName, 
         g.phone, 
-        g.email 
+        g.email,
+        COALESCE(rt.table_code, rm.room_name, 'N/A') as targetId,
+        COALESCE(rt.table_code, rm.room_name, 'N/A') as location
       FROM reservations r 
       LEFT JOIN guests g ON r.guest_id = g.id 
+      LEFT JOIN restaurant_tables rt ON r.table_id = rt.id AND r.booking_type = 'table'
+      LEFT JOIN rooms rm ON r.table_id = rm.id AND r.booking_type = 'room'
       WHERE r.deletedAt IS NULL
     `;
     const params = [];

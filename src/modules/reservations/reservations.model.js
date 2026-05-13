@@ -1,0 +1,49 @@
+const BaseModel = require('../../database/BaseModel');
+const pool = require('../../database/connection');
+
+class ReservationsModel extends BaseModel {
+  constructor() {
+    super('reservations');
+  }
+
+  async findWithGuestDetails(filters = {}) {
+    let sql = `
+      SELECT 
+        r.*, 
+        r.booking_date as date, 
+        r.booking_time as time, 
+        r.reservation_status as status, 
+        r.booking_type as type, 
+        r.guests_count as guests,
+        g.full_name,
+        g.full_name as guestName, 
+        g.phone, 
+        g.email 
+      FROM reservations r 
+      LEFT JOIN guests g ON r.guest_id = g.id 
+      WHERE r.deletedAt IS NULL
+    `;
+    const params = [];
+
+    if (filters.status) {
+      sql += ` AND r.reservation_status = ?`;
+      params.push(filters.status);
+    }
+
+    if (filters.date) {
+      sql += ` AND r.booking_date = ?`;
+      params.push(filters.date);
+    }
+
+    const [rows] = await pool.execute(sql, params);
+    
+    // Capitalize status and type for frontend compatibility (e.g., 'checked_in' -> 'Checked In')
+    return rows.map(row => ({
+      ...row,
+      status: row.status ? row.status.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : row.status,
+      type: row.type ? row.type.charAt(0).toUpperCase() + row.type.slice(1) : row.type
+    }));
+  }
+}
+
+module.exports = new ReservationsModel();

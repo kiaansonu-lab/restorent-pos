@@ -10,10 +10,13 @@ class TablesModel extends BaseModel {
     const sql = `
       SELECT t.*, z.zone_name, 
              o.id as active_order_id, o.grand_total as total, o.createdAt as session_start,
-             r.booking_time as reservation_time, g.full_name as reserved_by
+             r.booking_time as reservation_time,
+             COALESCE(g_res.full_name, g_ord.full_name) as reserved_by,
+             g_ord.full_name as customer_name
       FROM restaurant_tables t 
       JOIN table_zones z ON t.zone_id = z.id 
       LEFT JOIN orders o ON t.id = o.table_id AND o.payment_status = 'pending' AND o.deletedAt IS NULL
+      LEFT JOIN guests g_ord ON o.customer_id = g_ord.id
       LEFT JOIN (
         SELECT r1.* FROM reservations r1
         WHERE r1.id = (
@@ -25,7 +28,7 @@ class TablesModel extends BaseModel {
           LIMIT 1
         )
       ) r ON t.id = r.table_id AND t.status = 'reserved'
-      LEFT JOIN guests g ON r.guest_id = g.id
+      LEFT JOIN guests g_res ON r.guest_id = g_res.id
       WHERE t.deletedAt IS NULL
     `;
     const [rows] = await pool.execute(sql);

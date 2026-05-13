@@ -2,7 +2,7 @@ const roomsModel = require('./rooms.model');
 
 class RoomsService {
   async getAllRooms() {
-    return await roomsModel.findAll();
+    return await roomsModel.findAllWithGuestInfo();
   }
 
   async getAvailableRooms() {

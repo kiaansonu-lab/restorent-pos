@@ -56,7 +56,7 @@ const authorize = (...roles) => {
 
     return res.status(403).json({
       success: false,
-      message: 'Forbidden: You do not have access to this resource'
+      message: `Forbidden: You do not have access to this resource (Role: ${userRole})`
     });
   };
 };

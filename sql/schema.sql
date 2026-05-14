@@ -190,6 +190,7 @@ CREATE TABLE IF NOT EXISTS rooms (
     room_name VARCHAR(100),
     room_type VARCHAR(50),
     capacity INT DEFAULT 2,
+    base_rate DECIMAL(10, 2) DEFAULT 0.00,
     room_status ENUM('available', 'occupied', 'reserved', 'cleaning', 'maintenance') DEFAULT 'available',
     notes TEXT,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

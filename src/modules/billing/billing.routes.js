@@ -7,8 +7,8 @@ router.get('/my-bill', billingController.getGuestBill);
 
 router.use(authenticate);
 
-router.get('/', authorize('admin', 'manager', 'cashier'), billingController.getAllBills);
-router.post('/:id/settle', authorize('admin', 'manager', 'cashier'), billingController.settleBill);
-router.post('/:id/charges', authorize('admin', 'manager', 'cashier'), billingController.addCharge);
+router.get('/', authorize('admin', 'manager', 'cashier', 'waiter', 'receptionist'), billingController.getAllBills);
+router.post('/:id/settle', authorize('admin', 'manager', 'cashier', 'receptionist'), billingController.settleBill);
+router.post('/:id/charges', authorize('admin', 'manager', 'cashier', 'waiter', 'receptionist'), billingController.addCharge);
 
 module.exports = router;

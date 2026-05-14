@@ -267,6 +267,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     priority ENUM('low', 'medium', 'high', 'urgent') DEFAULT 'medium',
     assigned_to INT NULL,
     location VARCHAR(100),
+    description TEXT,
     deadline TIMESTAMP NULL,
     task_status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

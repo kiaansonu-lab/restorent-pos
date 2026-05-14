@@ -3,7 +3,13 @@ const conciergeService = require('./concierge.service');
 class ConciergeController {
   async getTickets(req, res) {
     try {
-      const tickets = await conciergeService.getActiveTickets();
+      let tickets;
+      const role = (req.user.role_name || req.user.role || '').toLowerCase();
+      if (role === 'customer' || role === 'guest') {
+         tickets = await conciergeService.getGuestTickets(req.user.id);
+      } else {
+         tickets = await conciergeService.getActiveTickets();
+      }
       res.json({
         success: true,
         message: 'Tickets fetched successfully',
@@ -14,6 +20,24 @@ class ConciergeController {
         success: false,
         message: err.message
       });
+    }
+  }
+
+  async createTicket(req, res) {
+    try {
+      const guestId = req.user.id;
+      const { type, subject, message } = req.body;
+      
+      const ticket = await conciergeService.createTicket({
+        guestId, type, subject, message
+      });
+
+      res.status(201).json({
+        success: true,
+        data: ticket
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
   }
 

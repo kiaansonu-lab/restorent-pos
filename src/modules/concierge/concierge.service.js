@@ -51,6 +51,36 @@ class ConciergeService {
     
     return { id: result.insertId, guest_id: guestId, ticket_status: 'open' };
   }
+
+  async getGuestTickets(guestId) {
+    const sql = `
+      SELECT t.*, 
+      COALESCE((SELECT message FROM support_messages WHERE ticket_id = t.id ORDER BY createdAt DESC LIMIT 1), 'New request') as last_message
+      FROM support_tickets t 
+      WHERE t.guest_id = ? AND t.deletedAt IS NULL
+      ORDER BY t.createdAt DESC
+    `;
+    const [rows] = await pool.execute(sql, [guestId]);
+    return rows;
+  }
+
+  async createTicket(data) {
+    const { guestId, type, subject, message } = data;
+    const ticketSql = 'INSERT INTO support_tickets (guest_id, ticket_status, ticket_type, subject) VALUES (?, "Open", ?, ?)';
+    const [result] = await pool.execute(ticketSql, [guestId, type || 'Support', subject || 'Support Request']);
+    const ticketId = result.insertId;
+
+    if (message) {
+      await this.sendMessage({
+        ticket_id: ticketId,
+        message: message,
+        sender_id: null // From guest
+      });
+    }
+
+    const [ticketRows] = await pool.execute('SELECT * FROM support_tickets WHERE id = ?', [ticketId]);
+    return ticketRows[0];
+  }
 }
 
 module.exports = new ConciergeService();

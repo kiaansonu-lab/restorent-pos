@@ -18,8 +18,10 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Basic Middlewares
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
 }));
+
 
 // HTTP Logging
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));

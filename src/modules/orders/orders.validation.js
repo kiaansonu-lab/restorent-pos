@@ -10,6 +10,10 @@ const createOrderSchema = Joi.object({
     subtotal: Joi.number().required(),
     tax: Joi.number().required(),
     discount: Joi.number().default(0),
+    serviceChargePercent: Joi.number().valid(0, 5, 10, 30).optional(),
+    service_charge_percent: Joi.number().valid(0, 5, 10, 30).optional(),
+    serviceChargeAmount: Joi.number().optional(),
+    service_charge_amount: Joi.number().optional(),
     grand_total: Joi.number().required(),
     payment_status: Joi.string().optional(),
     order_status: Joi.string().optional()

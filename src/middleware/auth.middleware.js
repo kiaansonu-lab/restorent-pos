@@ -15,7 +15,7 @@ const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const [rows] = await pool.execute(`
-      SELECT u.id, u.full_name, u.email, u.phone, u.avatar, u.profileImage, u.cart, u.addresses, u.authProvider, u.providerId, u.role_id, r.role_name 
+      SELECT u.id, u.full_name, u.email, u.role_id, r.role_name 
       FROM users u 
       JOIN roles r ON u.role_id = r.id 
       WHERE u.id = ? AND u.deletedAt IS NULL

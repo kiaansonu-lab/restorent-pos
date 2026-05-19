@@ -6,7 +6,13 @@ class OrdersController {
     try {
       const { status, customerId, userId } = req.query;
       const orders = await ordersService.getAllOrders({ status, customerId, userId });
-      return sendSuccess(res, 'Orders fetched successfully', orders);
+      const mappedOrders = orders.map(order => ({
+        ...order,
+        serviceChargePercent: order.service_charge_percent,
+        serviceChargeAmount: order.service_charge_amount,
+        updatedGrandTotal: order.grand_total
+      }));
+      return sendSuccess(res, 'Orders fetched successfully', mappedOrders);
     } catch (err) {
       return sendError(res, err.message);
     }
@@ -17,6 +23,9 @@ class OrdersController {
       if (!order) {
         return sendError(res, 'Order not found', 404);
       }
+      order.serviceChargePercent = order.service_charge_percent;
+      order.serviceChargeAmount = order.service_charge_amount;
+      order.updatedGrandTotal = order.grand_total;
       return sendSuccess(res, 'Order fetched successfully', order);
     } catch (err) {
       return sendError(res, err.message);
@@ -26,8 +35,12 @@ class OrdersController {
   async createOrder(req, res) {
     try {
       const { orderData, items } = req.body;
-      const orderId = await ordersService.createOrder(orderData, items);
-      return sendSuccess(res, 'Order created successfully', { id: orderId }, 201);
+      const { orderId, serviceChargeAmount, grandTotal } = await ordersService.createOrder(orderData, items);
+      return sendSuccess(res, 'Order created successfully', { 
+        id: orderId,
+        serviceChargeAmount,
+        updatedGrandTotal: grandTotal
+      }, 201);
     } catch (err) {
       return sendError(res, err.message);
     }

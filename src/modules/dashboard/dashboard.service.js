@@ -44,11 +44,11 @@ class DashboardService {
 
     // Monthly revenue chart data
     const [monthlyRevenue] = await pool.execute(`
-      SELECT ANY_VALUE(DATE_FORMAT(createdAt, '%b %d')) as month, SUM(grand_total) as revenue 
+      SELECT DATE_FORMAT(createdAt, '%b %d') as month, SUM(grand_total) as revenue 
       FROM orders 
       WHERE payment_status = "paid" 
       ${dateFilter}
-      GROUP BY DATE(createdAt) 
+      GROUP BY DATE(createdAt), DATE_FORMAT(createdAt, '%b %d') 
       ORDER BY DATE(createdAt) ASC
     `);
 
@@ -119,14 +119,15 @@ class DashboardService {
 
   async getTrafficHeatmap() {
     const [rows] = await pool.execute(`
-      SELECT ANY_VALUE(DAYNAME(createdAt)) as day, ANY_VALUE(HOUR(createdAt)) as hour, COUNT(*) as orders 
+      SELECT DAYNAME(createdAt) as day, HOUR(createdAt) as hour, COUNT(*) as orders 
       FROM orders 
       WHERE createdAt >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-      GROUP BY DATE(createdAt), HOUR(createdAt) 
-      ORDER BY MIN(createdAt) ASC, hour ASC
+      GROUP BY DATE(createdAt), HOUR(createdAt), DAYNAME(createdAt) 
+      ORDER BY MIN(createdAt) ASC, HOUR(createdAt) ASC
     `);
     return rows;
   }
 }
 
 module.exports = new DashboardService();
+

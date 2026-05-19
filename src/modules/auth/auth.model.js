@@ -16,6 +16,13 @@ class AuthModel extends BaseModel {
     const [rows] = await pool.execute(sql, [email]);
     return rows[0];
   }
+
+  async findRoleByName(roleName) {
+    const sql = `SELECT id FROM roles WHERE role_name = ? AND deletedAt IS NULL LIMIT 1`;
+    const [rows] = await pool.execute(sql, [roleName]);
+    return rows[0] ? rows[0].id : null;
+  }
 }
 
 module.exports = new AuthModel();
+

@@ -106,6 +106,8 @@ CREATE TABLE IF NOT EXISTS orders (
     subtotal DECIMAL(10, 2) NOT NULL,
     tax DECIMAL(10, 2) DEFAULT 0,
     discount DECIMAL(10, 2) DEFAULT 0,
+    service_charge_percent DECIMAL(5, 2) DEFAULT 0.00,
+    service_charge_amount DECIMAL(10, 2) DEFAULT 0.00,
     grand_total DECIMAL(10, 2) NOT NULL,
     payment_status ENUM('pending', 'partial', 'paid', 'refunded') DEFAULT 'pending',
     order_status ENUM('new', 'pending', 'cooking', 'ready', 'delivered', 'cancelled') DEFAULT 'new',
@@ -383,9 +385,10 @@ CREATE TABLE IF NOT EXISTS favorites (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deletedAt TIMESTAMP NULL,
-    FOREIGN KEY (customer_id) REFERENCES guests(id),
+    FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
 );
+
 
 -- 27. Carts
 CREATE TABLE IF NOT EXISTS carts (

@@ -67,6 +67,26 @@ class CustomerController {
       return sendError(res, err.message);
     }
   }
+
+  async syncData(req, res) {
+    try {
+      const { cart, addresses } = req.body;
+      const userId = req.user.id;
+
+      await pool.execute(
+        'UPDATE users SET cart = ?, addresses = ? WHERE id = ?',
+        [
+          cart ? JSON.stringify(cart) : null,
+          addresses ? JSON.stringify(addresses) : null,
+          userId
+        ]
+      );
+
+      return sendSuccess(res, 'Data synchronized successfully');
+    } catch (err) {
+      return sendError(res, err.message);
+    }
+  }
 }
 
 module.exports = new CustomerController();
